@@ -22,6 +22,8 @@ terrain horizon (solar power) and when Earth is (direct-to-Earth radio).
   browser), with arrows to the Sun and Earth
 - CSV export of the 30-day table; shareable links (state in the URL)
 
+Every value and control is explained in the [interface guide](docs/UI_GUIDE.md).
+
 ## How it works
 
 | Piece | What it does | Data |
