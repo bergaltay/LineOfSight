@@ -44,21 +44,29 @@ while Earth-facing Malapert and Leibnitz Beta keep radio contact > 80% of the ti
 
 ## Run it
 
-```bash
-# 1. LOLA DEMs (PDS Geosciences Node) -> data/raw/
-#    ldem_80s_80m_float.img  (231 MB)
-#    ldem_75s_240m_float.img (58 MB)
-#    https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/float_img/
+1. Download the LOLA DEMs from the
+   [PDS Geosciences Node](https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/float_img/)
+   into `data/raw/`: `ldem_80s_80m_float.img` (231 MB) and `ldem_75s_240m_float.img` (58 MB).
 
-# 2. Python pipeline
-python3 -m venv venv && source venv/bin/activate
-pip install astronomy-engine numpy scipy
-python pipeline/validate_horizons.py   # ephemeris vs JPL Horizons
-python pipeline/build_data.py          # horizon profiles -> web/data/sites.json
+2. Run the Python pipeline. `validate_horizons.py` compares the ephemeris with JPL Horizons;
+   `build_data.py` writes the horizon profiles to `web/data/sites.json`.
 
-# 3. Web app
-cd web && python3 -m http.server 8000   # open http://localhost:8000
-```
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install astronomy-engine numpy scipy
+   python pipeline/validate_horizons.py
+   python pipeline/build_data.py
+   ```
+
+3. Serve the web app and open http://localhost:8000
+
+   ```bash
+   cd web
+   python3 -m http.server 8000
+   ```
+
+The live version is served from GitHub Pages; the root `index.html` redirects to `web/`.
 
 ## Data and credits
 
