@@ -7,19 +7,24 @@ terrain horizon (solar power) and when Earth is (direct-to-Earth radio).
 
 **Features**
 
-- Plan A vs Plan B side by side, with differences highlighted (B compared with A)
+The page follows the decision: **1** pick a site and date for each plan, **2** see which plan is
+better, **3** look at any moment from the lander, **4** refine the pad and share.
+
+- **South pole map first:** shaded LOLA relief with the curated sites; nearby sites share a
+  numbered marker that opens a list. Click a site, or any point on the terrain (skyline computed
+  in the browser), for plan A or B. Sites beyond the map are one click away below it.
 - 17 curated sites: Artemis III / LOLA study regions, CLPS landings (IM-1, IM-2, Blue Ghost 1),
   Chandrayaan-3, SLIM, Chang'e 4 and 6 (far side), Apollo 11 and 14, plus custom coordinates
-- Landing date and hour, with one-click shifts of ±1 day and ±1 lunar month
-- Countdown to the next sunset / sunrise and Earthset / Earthrise; Sun and Earth elevation and
-  clearance above the skyline
-- 360° horizon panorama with the Sun's and Earth's 30-day paths over real LOLA terrain
-- 30-day hour-by-hour timeline (power and link / power only / link only / neither), animated
+- Landing date and hour, with one-click shifts of ±1 day and ±1 lunar month; **across the year**
+  chart of monthly sunlight and Earth visibility (polar seasons), click a month to land then
+- **Landing safety:** NASA LOLA slope (80 m, and 5 m at six sites, with 1σ) and permanent-shadow
+  checks for each polar pad
+- **Comparison table** of plan A and B over 30 days, better plan marked, with a one-sentence
+  summary; 30-day hour-by-hour timeline (power and link / power only / link only / neither)
+- 360° horizon panorama with the Sun's and Earth's 30-day paths over real LOLA terrain, animated;
+  countdown to the next sunset / sunrise and Earthset / Earthrise, elevation and clearance
 - **Move the pad:** 5 x 5 grid of pads 1 km apart around each polar site, coloured by sunlight,
-  Earth visibility or both, with slopes over 10° flagged as too steep to land
-- **Across the year:** monthly sunlight and Earth visibility, showing polar seasons
-- **South pole map:** shaded LOLA relief; click anywhere to land there (skyline computed in the
-  browser), with arrows to the Sun and Earth
+  Earth visibility or both, with steep or permanently shadowed pads flagged
 - CSV export of the 30-day table; shareable links (state in the URL)
 
 Every value and control is explained in the [interface guide](docs/UI_GUIDE.md).
@@ -33,6 +38,7 @@ Every value and control is explained in the [interface guide](docs/UI_GUIDE.md).
 | `pipeline/horizon.py` | 360 deg terrain skyline per site (0.5 deg steps, out to 450 km, lunar curvature included, no refraction) | LOLA `LDEM_80S_80M` + `LDEM_75S_240M` |
 | `pipeline/build_data.py` | Writes `web/data/sites.json` (sites + horizons) and `web/data/grid/*.json` (5 x 5 pad grids) | `pipeline/sites.py` |
 | `pipeline/build_dem.py` | Writes `web/data/dem_south_480m.bin`, a 480 m terrain grid (300 km around the pole) for the map and custom points | LOLA `LDEM_75S_240M` |
+| `pipeline/build_shade.py` | Writes `web/data/shade_south_480m.webp`, the pre-rendered shaded relief for the map (same shading as `web/js/terrain.js`), so the map appears before the terrain grid loads | `web/data/dem_south_480m.bin` |
 | `pipeline/build_safety.py` | Writes `web/data/safety.json`: slope at each pad (80 m everywhere, 5 m at six sites, with 1σ), slope statistics over 500 m / 100 m circles, permanent-shadow check and nearest PSR, per-cell slope and PSR for the pad grid. `pipeline/pgda.py` fetches only the TIFF tiles around each pad (HTTP range requests) and caches them in `data/raw/pgda_cache/` | NASA GSFC PGDA: `LDSM_80S_80MPP_ADJ` (+`_ERR`), `LPSR_80S_20MPP_ADJ`, 5 m site DEMs `Site01/04/07/11/20/23` (`slp`, `slperr`) |
 | `web/` | Static web app; ephemeris (`web/js/ephem.js`, same math as Python) and custom-point skylines (`web/js/terrain.js`) run in the browser | — |
 
@@ -85,6 +91,7 @@ while Earth-facing Malapert and Leibnitz Beta keep radio contact > 80% of the ti
    python pipeline/validate_horizons.py
    python pipeline/build_data.py
    python pipeline/build_dem.py
+   python pipeline/build_shade.py
    python pipeline/build_safety.py   # needs network on first run (NASA PGDA)
    ```
 

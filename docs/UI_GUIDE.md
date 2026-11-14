@@ -3,16 +3,16 @@
 What every value, control and chart in the Lunar Landing Site Navigator shows, and how it is
 computed. All times are UTC. All angles are in degrees.
 
-- [Key terms](#key-terms)
-- [Header: mission time](#header-mission-time)
-- [Plan cards (A and B)](#plan-cards-a-and-b)
-- [What the lander sees (horizon panorama)](#what-the-lander-sees-horizon-panorama)
-- [First 30 days after landing (timeline)](#first-30-days-after-landing-timeline)
-- [Across the year](#across-the-year)
-- [Pick any point near the pole (map)](#pick-any-point-near-the-pole-map)
-- [Sites](#sites)
-- [Shareable links](#shareable-links)
-- [Assumptions and limits](#assumptions-and-limits)
+The page follows the order in which a landing plan is chosen:
+
+1. [Pick a landing site and date](#1-pick-a-landing-site-and-date): map and plan panel
+2. [Which plan is better?](#2-which-plan-is-better): comparison table and 30-day timelines
+3. [What the lander sees](#3-what-the-lander-sees): horizon panoramas at a chosen moment
+4. [Refine and share](#4-refine-and-share): move the pad, download, copy a link
+
+Background sections follow (why the pole is sensitive, which landing criteria are modelled,
+sources). Also: [Key terms](#key-terms), [Sites](#sites), [Shareable links](#shareable-links),
+[Assumptions and limits](#assumptions-and-limits).
 
 ---
 
@@ -32,73 +32,57 @@ computed. All times are UTC. All angles are in degrees.
 
 ---
 
-## Header: mission time
+## 1. Pick a landing site and date
+
+There are two plans: **A**, the primary plan, and **B**, the backup. The panel on the right edits
+one plan at a time; map clicks also go to that plan.
+
+### Map
+
+| Element | Meaning |
+|---|---|
+| Shaded relief | LOLA terrain within 300 km of the south pole (480 m resolution), lit from the upper left, polar stereographic projection centred on the pole. Pre-rendered, so it appears at once. |
+| Rings | Latitude 88°S, 86°S, 84°S, 82°S. |
+| Edge labels | Longitude. 0° points toward the Earth-facing side. |
+| White dot | A curated site. Hover for its name; click to use it for the plan being edited. |
+| Numbered circle | Several curated sites close together (within 45 km on the ground, or 24 px on screen, linked in a chain). The number is how many. Hover to list them; click to keep the list open, then choose one. Esc or a click elsewhere closes it. At full desktop size the groups are the four sites around the pole and Nobile Rim 1 / Leibnitz Beta / IM-2; on small screens more sites merge. |
+| **A** / **B** markers | Where each plan lands. The plan being edited has a gold ring. A plan on a grouped site is drawn beside the group, joined to it by a thin line. |
+| Gold / blue arrows | Direction of the Sun / Earth from that plan at the current mission time (step 3). Dashed and faded when the body is hidden by terrain. |
+| Click on open ground | Sets the plan to a custom point there. Its skyline is computed in the browser from the 480 m terrain (about 0.1–0.2 s); this needs the 3 MB terrain grid, which loads in the background a moment after the page. |
+| **Beyond this map** | Curated sites outside the map (equatorial and far-side landings, and IM-1, which lies just past its 300 km edge). Click to use one for the plan being edited. |
+| Status line | Confirms each choice, or explains why a click did nothing. |
+
+Picking a curated site from the map is the same as choosing it in the **Landing site** list: the
+site's 80 m terrain skyline and pad grid are used, not a custom point.
+
+### Plan panel
 
 | Control | What it does |
 |---|---|
-| **Time after landing** slider | Sets mission time from 0 to 720 h (30 days) in 1-hour steps. The label shows day and hour. Every card, panorama disc, timeline cursor and map arrow follows it. |
-| **Play / Pause** | Animates mission time; wraps back to 0 after 30 days. |
-| **Speed** | How far each animation step moves: 1 h, 6 h or 1 day per tick (a tick is 0.14 s). |
-
----
-
-## Plan cards (A and B)
-
-Plan A is the primary plan; Plan B is the backup. Every value in B's statistics is also compared
-with A.
-
-### Inputs
-
-| Control | What it does |
-|---|---|
+| **Primary plan / Backup plan** tabs | Which plan the panel and map clicks edit. Arrow keys switch tabs. |
 | **Landing site** | Choose one of 17 curated sites (grouped: Artemis / LOLA study sites, Artemis III candidates, CLPS landings, other lunar programmes, Apollo) or **Custom point…**. See [Sites](#sites). |
 | **Lat / Lon (E)** | Shown only for a custom point. Latitude −90…90, east longitude −180…360. Inside the polar terrain map the skyline is computed from terrain; outside it, a smooth sphere is used. |
 | **Landing date** and **UTC** hour | Start of the 30-day window. Changing them recomputes everything for that plan. |
 | **−1 lunar month / −1 day / +1 day / +1 lunar month** | Shift the landing by ±1 day or ±29.53 days (one synodic month: the same lighting phase, but Earth's libration and the season have moved on). |
 | **Copy plan A** (B only) | Copies A's site, pad position, date and hour into B, as a starting point for a backup plan. |
+| Summary (bottom) | Site and landing time of both plans. Click one to edit it. |
 
-### Site note
+#### Site note
 
 The line under the inputs describes the site and where the lander actually stands:
 
-- **Landing pad X km from NASA's region centre** — for study regions, the pad is moved to the
+- **Landing pad X km from NASA's region centre**: for study regions, the pad is moved to the
   highest gentle ground nearby (see [Assumptions](#assumptions-and-limits)).
-- **Actual touchdown point** — for past landings the published coordinates are used as they are.
-- **Pad moved N km …** — you picked another square in *Move the pad*.
+- **Actual touchdown point**: for past landings the published coordinates are used as they are.
+- **Pad moved N km …**: you picked another square in *Move the pad* (step 4).
 - Slope and elevation (height above the 1737.4 km reference sphere) of that point.
 - Shown in gold when terrain is not modelled (smooth sphere) or when the skyline comes from the
   coarser in-browser terrain.
 
-### Sun and Earth boxes (at the current mission time)
+#### Landing safety (polar sites, 80–90° S)
 
-| Item | Meaning |
-|---|---|
-| Coloured dot | Filled: the body is up. Empty ring: it is hidden. |
-| **State** | Sun: *Sunlit: solar power* or *In shadow: on battery*. Earth: *Earth in view: direct radio*, *Earth hidden: no direct radio*, or *Earth never rises: relay needed* (Earth's elevation stays below −2° for all 30 days, as on the far side). |
-| **Countdown** | Time until the next change of state within the 30-day window: *Sunset / Sunrise in …*, *Earthset / Earthrise in …*. If nothing changes before day 30: *Stays up / Stays down for the rest of the 30 days*. |
-| **Sun elevation / Earth elevation** | Elevation of the body's centre. The Sun's value is highlighted because it drives solar power: at the pole it rarely exceeds about 2°. |
-| **Above skyline** | Clearance above the terrain in that direction. Values within about the disc radius mean the body is grazing the skyline. |
-| Small line | Azimuth with compass direction, skyline elevation in that direction, and % of the disc visible. |
-
-### Statistics (over the 30 days after landing, hourly samples)
-
-| Statistic | Definition |
-|---|---|
-| **Time in sunlight** | % of hours with the Sun up. |
-| **Time Earth in view** | % of hours with Earth up. |
-| **Power and Earth link** | % of hours with both up: the lander can charge *and* talk to Earth directly. |
-| **Longest darkness** | Longest continuous stretch with the Sun hidden (battery-only operation). Shown in hours, or days when 48 h or longer. |
-| **Longest radio gap** | Longest continuous stretch with Earth hidden. |
-| **Average Sun height** | Mean Sun elevation over the hours when it is up. |
-
-**Differences in Plan B** (small coloured numbers): B minus A. Percentages are shown in
-percentage points (*pts*), durations in hours (*h*), Sun height in degrees. Green means better for
-the mission (more sunlight / Earth time, shorter gaps), red means worse. Differences smaller than
-0.5 pts / 0.5 h / 0.05° are hidden.
-
-### Landing safety (polar sites, 80–90° S)
-
-Terrain checks from NASA LOLA maps (NASA GSFC PGDA). They screen a site; they cannot clear it, because rocks and holes under ~0.5 m are invisible at these resolutions.
+Terrain checks from NASA LOLA maps (NASA GSFC PGDA). They screen a site; they cannot clear it,
+because rocks and holes under ~0.5 m are invisible at these resolutions.
 
 | Value | Meaning |
 |---|---|
@@ -108,55 +92,56 @@ Terrain checks from NASA LOLA maps (NASA GSFC PGDA). They screen a site; they ca
 | 95% of 500 m circle under | 95th-percentile slope in the same circle. |
 | Nearest permanent shadow | Distance to the nearest permanently shadowed region (PSR) on the 20 m/px NASA PSR map, searched out to 5 km. "Pad is inside" means the pad never sees the Sun. |
 
-On a moved pad only the point values (80 m slope, PSR yes/no) are shown. Custom points and sites outside 80–90° S show no safety values.
+On a moved pad only the point values (80 m slope, PSR yes/no) are shown. Custom points and sites
+outside 80–90° S show no safety values.
 
-### Move the pad (polar sites only)
+#### Across the year
 
-A 5 x 5 grid of alternative pads, 1 km apart, centred on the site's pad. North is up, east is right.
-
-| Element | Meaning |
-|---|---|
-| **Sunlight / Earth / Both** | Which 30-day statistic colours the grid (same definitions as above, sampled every 2 h). |
-| Number in a square | That statistic in % for a pad at that position. Stronger colour means a higher value. |
-| Dashed inner border | The original pad. |
-| White outline | The pad currently used by the plan. Click any square to move the plan there; the whole page updates. |
-| Hatched square | Not landable: slope over 10° on the NASA LOLA 80 m slope map, or inside a permanently shadowed region (NASA 20 m PSR map). Hover for the reason. |
-| Text | The value at the current pad, a slope warning if needed, and the best landable square nearby. |
-
-### Download 30-day table (CSV)
-
-Hourly table for the plan as currently set. A first comment line records site, coordinates and
-landing time. Columns:
-
-| Column | Meaning |
-|---|---|
-| `time_utc` | Sample time |
-| `hours_after_landing` | 0…720 |
-| `sun_az_deg`, `sun_el_deg` | Sun azimuth and elevation |
-| `sun_skyline_deg` | Terrain skyline in the Sun's direction |
-| `sun_disc_visible` | Share of the solar disc above the skyline (0–1) |
-| `earth_az_deg`, `earth_el_deg`, `earth_skyline_deg`, `earth_disc_visible` | Same for Earth |
-| `power`, `direct_to_earth` | 1 if the Sun / Earth is up, else 0 |
-
----
-
-## What the lander sees (horizon panorama)
-
-One panorama per plan: the full 360° view from 2 m above the pad.
+Twelve periods of 365/12 days starting at the landing time, labelled by the calendar month in the
+middle of each period.
 
 | Element | Meaning |
 |---|---|
-| Horizontal axis | Azimuth: N, E, S, W, N. |
-| Vertical axis | Elevation in degrees. The scale adapts to each site. |
-| **vertical ×N** | How much the vertical scale is stretched relative to the horizontal, so the few degrees that matter at the pole are visible. Mountains look steeper than they are. |
-| Grey silhouette | Terrain skyline from LOLA laser altimetry (or a flat line for smooth-sphere sites). |
-| Gold line | Path of the Sun over the 30 days after landing (hourly). Where it passes behind the silhouette, the Sun is hidden. |
-| Blue line | Path of Earth over the same 30 days. At the pole it traces a small loop as Earth bobs with libration. |
-| Discs | Sun and Earth at the current mission time, at their true angular size (stretched with the vertical scale, minimum 4 px). Faded with a dashed ring when hidden. |
+| Gold bar | % of the period with the Sun up (3-hour samples) |
+| Blue bar | % of the period with Earth up |
+| Click a period | Moves the landing date to the start of that period (whole days, so the hour stays). The chart then starts again from the new date. |
+
+At the pole, the Moon's 1.5° tilt creates seasons: the same site can be lit almost all month in
+one part of the year and dark for long stretches in another.
 
 ---
 
-## First 30 days after landing (timeline)
+## 2. Which plan is better?
+
+All values cover the 30 days after each plan's landing, sampled every hour.
+
+### Summary sentence
+
+One or two sentences built from the table: the strongest advantage of each plan, chosen among
+time in sunlight, time Earth in view, power and Earth link, longest darkness and longest radio gap.
+To compare shares and gaps, 1 percentage point counts the same as 2.4 h of gap (10 pts ≈ 1 day).
+Differences under 2 pts (or about 5 h) are not mentioned; if none is larger, the plans are called
+practically equal. If one plan is better on everything that matters, its two largest advantages
+are named.
+
+### Comparison table
+
+| Row | Definition |
+|---|---|
+| **Time in sunlight** | % of hours with the Sun up. |
+| **Time Earth in view** | % of hours with Earth up. |
+| **Power and Earth link** | % of hours with both up: the lander can charge *and* talk to Earth directly. |
+| **Longest darkness** | Longest continuous stretch with the Sun hidden (battery-only operation). Shown in hours, or days when 48 h or longer. |
+| **Longest radio gap** | Longest continuous stretch with Earth hidden. |
+| **Average Sun height** | Mean Sun elevation over the hours when it is up. |
+| **Pad slope (80 m map)** | Slope at the pad (or moved pad) on the NASA LOLA 80 m slope map. "–" for custom points and smooth-sphere sites. |
+
+★ and a light background mark the better plan on each row (higher shares and Sun height, shorter
+gaps, gentler slope). **B − A**: percentages in percentage points (*pts*), durations in hours or
+days, angles in degrees; green when B is better, red when A is better. Differences smaller than
+0.5 pts / 0.5 h / 0.05° count as equal ("≈ same").
+
+### First 30 days after landing (timeline)
 
 One strip per plan, one column per hour.
 
@@ -171,34 +156,79 @@ The white vertical line is the current mission time. Click or drag a strip to mo
 
 ---
 
-## Across the year
+## 3. What the lander sees
 
-One chart per plan, 12 periods of 365/12 days starting at the landing time (labelled by the
-calendar month in the middle of each period).
+### Mission time bar
 
-| Bar | Meaning |
+Stays at the top of the screen while you scroll through step 3.
+
+| Control | What it does |
 |---|---|
-| Gold | % of the period with the Sun up (3-hour samples) |
-| Blue | % of the period with Earth up |
+| **Time after landing** slider | Sets mission time from 0 to 720 h (30 days) in 1-hour steps. The label shows day and hour. Panorama discs, Sun and Earth state, timeline cursors and map arrows all follow it. |
+| **Play / Pause** | Animates mission time; wraps back to 0 after 30 days. |
+| **Speed** | How far each animation step moves: 1 h, 6 h or 1 day per tick (a tick is 0.14 s). |
 
-At the pole, the Moon's 1.5° tilt creates seasons: the same site can be lit almost all month in
-one part of the year and dark for long stretches in another.
+### Horizon panorama
 
----
-
-## Pick any point near the pole (map)
+One panorama per plan: the full 360° view from 2 m above the pad.
 
 | Element | Meaning |
 |---|---|
-| Shaded relief | LOLA terrain within 300 km of the south pole (480 m resolution), lit from the upper left, polar stereographic projection centred on the pole. |
-| Rings | Latitude 88°S, 86°S, 84°S, 82°S. |
-| Edge labels | Longitude. 0° points toward the Earth-facing side. |
-| White dots | Curated polar sites. |
-| **A** / **B** markers | Current position of each plan (only when it lies on the map). |
-| Gold / blue arrows | Direction of the Sun / Earth from that plan at the current mission time. Dashed and faded when the body is hidden by terrain. |
-| **Place plan A / Place plan B** | Which plan a click on the map moves. |
-| Click on the map | Sets that plan to a custom point there. Its skyline is computed in the browser from the 480 m terrain (about 0.1–0.2 s). |
-| Status line | Confirms the new position, or explains that the click was outside the terrain map. |
+| Horizontal axis | Azimuth: N, E, S, W, N. |
+| Vertical axis | Elevation in degrees. The scale adapts to each site. |
+| **vertical ×N** | How much the vertical scale is stretched relative to the horizontal, so the few degrees that matter at the pole are visible. Mountains look steeper than they are. |
+| Grey silhouette | Terrain skyline from LOLA laser altimetry (or a flat line for smooth-sphere sites). |
+| Gold line | Path of the Sun over the 30 days after landing (hourly). Where it passes behind the silhouette, the Sun is hidden. |
+| Blue line | Path of Earth over the same 30 days. At the pole it traces a small loop as Earth bobs with libration. |
+| Discs | Sun and Earth at the current mission time, at their true angular size (stretched with the vertical scale, minimum 4 px). Faded with a dashed ring when hidden. |
+
+### Sun and Earth state (under each panorama)
+
+| Item | Meaning |
+|---|---|
+| Coloured dot | Filled: the body is up. Empty ring: it is hidden. |
+| **State** | Sun: *Sunlit: solar power* or *In shadow: on battery*. Earth: *Earth in view: direct radio*, *Earth hidden: no direct radio*, or *Earth never rises: relay needed* (Earth's elevation stays below −2° for all 30 days, as on the far side). |
+| **Countdown** | Time until the next change of state within the 30-day window: *Sunset / Sunrise in …*, *Earthset / Earthrise in …*. If nothing changes before day 30: *Stays up / Stays down for the rest of the 30 days*. |
+| **Sun elevation / Earth elevation** | Elevation of the body's centre. The Sun's value is highlighted because it drives solar power: at the pole it rarely exceeds about 2°. |
+| **Above skyline** | Clearance above the terrain in that direction. Values within about the disc radius mean the body is grazing the skyline. |
+| Small line | Azimuth with compass direction, skyline elevation in that direction, and % of the disc visible. |
+
+---
+
+## 4. Refine and share
+
+### Move the pad (polar sites only)
+
+One grid per plan: a 5 x 5 grid of alternative pads, 1 km apart, centred on the site's pad.
+North is up, east is right.
+
+| Element | Meaning |
+|---|---|
+| **Sunlight / Earth / Both** | Which 30-day statistic colours the grid (same definitions as in step 2, sampled every 2 h). |
+| Number in a square | That statistic in % for a pad at that position. Stronger colour means a higher value. |
+| Dashed inner border | The original pad. |
+| White outline | The pad currently used by the plan. Click any square to move the plan there; the whole page updates. |
+| Hatched square | Not landable: slope over 10° on the NASA LOLA 80 m slope map, or inside a permanently shadowed region (NASA 20 m PSR map). Hover for the reason. |
+| Text | The value at the current pad, a slope warning if needed, and the best landable square nearby. |
+
+### Download 30-day table (CSV)
+
+One button per plan. Hourly table for the plan as currently set. A first comment line records site, coordinates and
+landing time. Columns:
+
+| Column | Meaning |
+|---|---|
+| `time_utc` | Sample time |
+| `hours_after_landing` | 0…720 |
+| `sun_az_deg`, `sun_el_deg` | Sun azimuth and elevation |
+| `sun_skyline_deg` | Terrain skyline in the Sun's direction |
+| `sun_disc_visible` | Share of the solar disc above the skyline (0–1) |
+| `earth_az_deg`, `earth_el_deg`, `earth_skyline_deg`, `earth_disc_visible` | Same for Earth |
+| `power`, `direct_to_earth` | 1 if the Sun / Earth is up, else 0 |
+
+### Copy link to this comparison
+
+Copies the page address, which stores both plans (see [Shareable links](#shareable-links)).
 
 ---
 
@@ -240,7 +270,8 @@ The page address stores both plans, so a copied link reopens the same comparison
 ```
 
 `<site>` is a site id (for example `malapert-massif`) or `custom`; `<padEast>` and `<padNorth>`
-are the *Move the pad* offsets in km (−2…2).
+are the *Move the pad* offsets in km (−2…2). The format did not change with the 14 Nov 2026
+layout, so earlier links still open.
 
 ---
 
@@ -267,3 +298,6 @@ are the *Move the pad* offsets in km (−2…2).
   geometric line of sight, not a guarantee of power or of a radio link.
 - **Time sampling.** Cards and the timeline use hourly samples; *Move the pad* uses 2-hour
   samples; *Across the year* uses 3-hour samples. Countdowns are accurate to about an hour.
+- **Map relief image.** `web/data/shade_south_480m.webp` is rendered by `pipeline/build_shade.py`
+  with the same shading as `terrain.js` (identical before compression; WebP adds a mean error of
+  1.5/255 per colour channel). It is only a picture: all computations use the terrain grid.
