@@ -85,6 +85,18 @@ main { padding: 0 clamp(1rem, 4vw, 3rem) 3rem; display: grid; gap: 2.5rem; }
 .stats dd { margin: 0; font: 600 1.4rem/1.2 var(--num); font-variant-numeric: tabular-nums; color: #fff; }
 .stats dd .delta { font-size: .85rem; margin-left: .3rem; font-weight: 500; }
 .delta.up { color: #8fd6a8; } .delta.down { color: #f08a7a; }
+.safety { margin-top: 1.25rem; }
+.safety h3 { margin: 0; font-size: 1rem; font-weight: 600; color: #fff; }
+.safety h3 small { font-weight: 400; font-size: .8rem; color: var(--dust); margin-left: .35rem; }
+.safe-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem 1rem; margin: .6rem 0 0; }
+.safe-stats div { border-top: 1px solid var(--rim); padding-top: .4rem; }
+.safe-stats dt { font-size: .78rem; color: var(--dust); }
+.safe-stats dd { margin: 0; font: 600 1.1rem/1.25 var(--num); font-variant-numeric: tabular-nums; color: #fff; }
+.safe-stats dd small { font-weight: 500; font-size: .78rem; color: var(--dust); }
+.safe-stats dd.warn { color: var(--sun); }
+.safe-stats dd.bad { color: #f08a7a; }
+.safe-note { margin: .5rem 0 0; font-size: .8rem; color: var(--dust); }
+@media (max-width: 560px) { .safe-stats { grid-template-columns: 1fr 1fr; } }
 
 .when { display: flex; gap: .6rem; }
 .when .hour { width: 6.5rem; }
@@ -144,6 +156,19 @@ main { padding: 0 clamp(1rem, 4vw, 3rem) 3rem; display: grid; gap: 2.5rem; }
 /* ---------- explainer ---------- */
 .why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 1.5rem; margin-top: .75rem; }
 .why-grid p { margin: 0; max-width: 60ch; }
+
+.criteria .hint { color: var(--dust); margin: .35rem 0 1rem; max-width: 75ch; font-size: .95rem; }
+.crit-wrap { overflow-x: auto; }
+.crit { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.crit th, .crit td { text-align: left; vertical-align: top; padding: .55rem .75rem; border-bottom: 1px solid var(--rim); }
+.crit thead th { color: var(--dust); font-weight: 500; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+.crit tbody th { color: #fff; font-weight: 500; min-width: 12ch; }
+.crit td:last-child { color: var(--dust); min-width: 18ch; }
+.st { display: inline-block; white-space: nowrap; padding: .1rem .5rem; border-radius: 999px; font-size: .8rem; border: 1px solid var(--rim); }
+.st.yes { color: var(--night); background: var(--both); border-color: var(--both); }
+.st.part { color: var(--sun); border-color: var(--sun); }
+.st.no { color: var(--dust); }
+.crit-src { color: var(--dust); font-size: .85rem; max-width: 110ch; margin: 1rem 0 0; }
 
 .foot { padding: 1.5rem clamp(1rem, 4vw, 3rem) 2.5rem; color: var(--dust); font-size: .85rem; border-top: 1px solid var(--rim); }
 .foot p { max-width: 110ch; margin: 0; }

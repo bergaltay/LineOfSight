@@ -57,6 +57,11 @@
       <small class="pos"></small></div></div>
   </div>
   <dl class="stats"></dl>
+  <div class="safety">
+    <h3>Landing safety <small>NASA LOLA slope and permanent-shadow maps</small></h3>
+    <dl class="safe-stats"></dl>
+    <p class="safe-note"></p>
+  </div>
   <div class="nudge" hidden>
     <div class="nudge-head">
       <h3>Move the pad</h3>
@@ -133,10 +138,32 @@
       <p>There is no air to bend light, so the horizon is exactly the terrain plus the curve of the Moon. Moving a lander one kilometre, or landing a few days later, can change everything. Compare Apollo 11, where Earth hangs high in the sky all month.</p>
     </div>
   </section>
+
+  <section class="criteria" aria-labelledby="criteria-h">
+    <h2 id="criteria-h">Which landing criteria this tool accounts for</h2>
+    <p class="hint">Landing-site literature lists nine terrain criteria. This tool models four (light and line of sight, slope, the landing area, permanent shadow), one in part, and leaves four out. Orbital maps cannot see the 0.3–0.5 m rocks and holes that tip a lander, so treat every site here as a screened candidate, not a certified pad.</p>
+    <div class="crit-wrap">
+    <table class="crit">
+      <thead><tr><th scope="col">Criterion</th><th scope="col">Status</th><th scope="col">How it enters the tool</th><th scope="col">Data</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Sunlight, Earth line of sight, horizon</th><td><span class="st yes">Modelled</span></td><td>360° skyline (0.5° steps, out to 450 km, lunar curvature, no refraction) for an observer 2 m above the pad; Sun and Earth disc vs skyline every hour: time in sunlight, Earth in view, longest darkness, longest radio gap, month-by-month view.</td><td>LOLA LDEM_80S_80M + LDEM_75S_240M (PDS); astronomy-engine, checked against JPL Horizons (max 0.003°)</td></tr>
+        <tr><th scope="row">Slope</th><td><span class="st yes">Modelled</span></td><td>NASA LOLA slope map at 80 m/px for every polar pad, and at 5 m/px (close to landing-gear scale) at the six sites with a NASA site DEM, each with its 1σ uncertainty. Pads sit on ground under 8°; grid pads over 10° are marked unlandable. Check: IM-1 touchdown gives 11.2° ± 0.2° vs ~12° reported.</td><td>PGDA LDSM_80S_80MPP_ADJ (+_ERR); PGDA 5 m site DEMs Site01/04/07/11/20/23 (slp, slperr)</td></tr>
+        <tr><th scope="row">Landing area</th><td><span class="st yes">Modelled</span></td><td>Slope statistics over a 500 m circle (80 m map) and a 100 m circle, the size of an Artemis landing site (5 m map): 95th-percentile slope and share of ground under 10°, also with slope + 1σ. A circle stands in for a vehicle-specific ellipse.</td><td>same slope maps</td></tr>
+        <tr><th scope="row">Shadow and permanent shadow</th><td><span class="st yes">Modelled</span></td><td>Sunlit or in shadow at the chosen landing hour; whether the pad lies in a permanently shadowed region (PSR) and how far the nearest one is (searched to 5 km); grid pads inside a PSR are marked unlandable. Low-Sun effects on cameras and hazard detection are not modelled.</td><td>PGDA LPSR_80S_20MPP_ADJ (20 m/px)</td></tr>
+        <tr><th scope="row">Craters and rims</th><td><span class="st part">Partly</span></td><td>Only through slope: steep walls and rims show up as a high 95th-percentile slope and little ground under 10°; the 5 m maps resolve craters a few tens of metres wide at six sites. No explicit crater or drop-off detection.</td><td>slope maps above</td></tr>
+        <tr><th scope="row">Roughness / obstacle height</th><td><span class="st no">Not modelled</span></td><td>Needs sub-metre terrain (LROC NAC DTMs or images).</td><td>—</td></tr>
+        <tr><th scope="row">Boulders / rock abundance</th><td><span class="st no">Not modelled</span></td><td>Needs Diviner rock abundance or NAC boulder counts.</td><td>—</td></tr>
+        <tr><th scope="row">Plume–surface interaction (dust)</th><td><span class="st no">Not modelled</span></td><td>Vehicle-specific engine physics.</td><td>—</td></tr>
+        <tr><th scope="row">Regolith bearing strength</th><td><span class="st no">Not modelled</span></td><td>Needs Diviner thermophysical maps.</td><td>—</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="crit-src"><b>Sources used:</b> NASA LRO LOLA gridded data records LDEM_80S_80M and LDEM_75S_240M (PDS Geosciences Node); NASA GSFC PGDA LOLA south-pole slope, slope-uncertainty and permanent-shadow maps (Barker et al. 2023, Planet. Sci. J. 4, 183, doi:10.3847/PSJ/acf3e1; data doi:10.60903/gsfcpgda-lola-spole); NASA GSFC PGDA 5 m/px landing-site DEMs (Barker et al. 2021, Planet. Space Sci. 203, 105119, doi:10.1016/j.pss.2020.105119); astronomy-engine by Don Cross (MIT); NASA/JPL Horizons for validation; NASA LOLA study-region centres (Lunar Surface Data Book, 2025); landing coordinates from NASA NSSDC, LROC (ASU), JAXA, ISRO and mission releases. Sites north of 76°S use a smooth-sphere horizon (no terrain); slope and shadow maps cover 80–90°S.</p>
+  </section>
 </main>
 
 <footer class="foot">
-  <p>Data: NASA LRO LOLA gridded topography (LDEM_80S_80M, LDEM_75S_240M, PDS Geosciences Node). Sun and Earth positions computed in the browser with astronomy-engine (VSOP87 / ELP, IAU lunar orientation) and checked against NASA/JPL Horizons: largest difference 0.003°. Site centres: NASA LOLA study regions (Lunar Surface Data Book, 2025); landing coordinates from NASA NSSDC, LROC and mission releases. Visibility means a clear line of sight, not guaranteed power or a guaranteed radio link. NASA Space Apps Challenge 2026 project, not an official NASA product.</p>
+  <p>Data: NASA LRO LOLA gridded topography (LDEM_80S_80M, LDEM_75S_240M, PDS Geosciences Node); NASA GSFC PGDA LOLA slope, slope-uncertainty and permanent-shadow maps and 5 m site DEMs (Barker et al. 2021, 2023). Sun and Earth positions computed in the browser with astronomy-engine (VSOP87 / ELP, IAU lunar orientation) and checked against NASA/JPL Horizons: largest difference 0.003°. Site centres: NASA LOLA study regions (Lunar Surface Data Book, 2025); landing coordinates from NASA NSSDC, LROC and mission releases. Visibility means a clear line of sight, not guaranteed power or a guaranteed radio link. NASA Space Apps Challenge 2026 project, not an official NASA product.</p>
 </footer>
 
 <script src="vendor/astronomy.browser.min.js"></script>

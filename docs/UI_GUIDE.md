@@ -96,6 +96,20 @@ percentage points (*pts*), durations in hours (*h*), Sun height in degrees. Gree
 the mission (more sunlight / Earth time, shorter gaps), red means worse. Differences smaller than
 0.5 pts / 0.5 h / 0.05° are hidden.
 
+### Landing safety (polar sites, 80–90° S)
+
+Terrain checks from NASA LOLA maps (NASA GSFC PGDA). They screen a site; they cannot clear it, because rocks and holes under ~0.5 m are invisible at these resolutions.
+
+| Value | Meaning |
+|---|---|
+| Slope at pad (5 m map / 80 m map) | Slope at the pad from the 5 m/px NASA site DEM where one exists (Connecting Ridge, Shackleton Rim, Peak near Shackleton, de Gerlache Rim, Leibnitz Beta, Malapert), otherwise from the 80 m/px map. ± is the map's 1σ slope uncertainty. Amber above 8°, red above 10°. |
+| 95% of 100 m circle under | 95th-percentile slope within 100 m of the pad on the 5 m map (about the size of an Artemis landing site). |
+| Under 10° within 500 m | Share of the 500 m circle around the pad with slope below 10° on the 80 m map; the small figure repeats it with slope + 1σ (conservative). |
+| 95% of 500 m circle under | 95th-percentile slope in the same circle. |
+| Nearest permanent shadow | Distance to the nearest permanently shadowed region (PSR) on the 20 m/px NASA PSR map, searched out to 5 km. "Pad is inside" means the pad never sees the Sun. |
+
+On a moved pad only the point values (80 m slope, PSR yes/no) are shown. Custom points and sites outside 80–90° S show no safety values.
+
 ### Move the pad (polar sites only)
 
 A 5 x 5 grid of alternative pads, 1 km apart, centred on the site's pad. North is up, east is right.
@@ -106,7 +120,7 @@ A 5 x 5 grid of alternative pads, 1 km apart, centred on the site's pad. North i
 | Number in a square | That statistic in % for a pad at that position. Stronger colour means a higher value. |
 | Dashed inner border | The original pad. |
 | White outline | The pad currently used by the plan. Click any square to move the plan there; the whole page updates. |
-| Hatched square | Local slope over 10°: too steep for a crewed lander (Artemis requires < 10°). |
+| Hatched square | Not landable: slope over 10° on the NASA LOLA 80 m slope map, or inside a permanently shadowed region (NASA 20 m PSR map). Hover for the reason. |
 | Text | The value at the current pad, a slope warning if needed, and the best landable square nearby. |
 
 ### Download 30-day table (CSV)

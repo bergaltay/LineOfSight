@@ -10,6 +10,7 @@
     .forEach((k) => (C[k.slice(2)] = css(k)));
 
   let DATA = null, TERRAIN = null, SHADE = null;
+  let SAFETY = null;               // NASA LOLA slope / PSR metrics per pad (data/safety.json)
   let met = 0;                    // hours after landing (shared by A and B)
   let timer = null;
   const S = {};                   // scenario state keyed by "A" / "B"
@@ -34,6 +35,7 @@
   const later = (fn) => setTimeout(fn, 0);
 
   function siteById(id) { return DATA.sites.find((s) => s.id === id); }
+  const safetyFor = (id) => (SAFETY && SAFETY.sites[id]) || null;
 
   function sphereHorizon() {
     const dip = -Math.acos(E.R_MOON / (E.R_MOON + DATA.obs_height_m / 1000)) * 180 / Math.PI;
@@ -53,11 +55,16 @@
     const g = GRIDS[sc.siteId];
     if (base.grid && g && !g.then && (sc.off.i || sc.off.j)) {
       const p = gridPoint(g, sc.off.i, sc.off.j);
-      return { ...base, lat: p.lat, lon: p.lon, height_km: p.height_km, slope_deg: p.slope_deg,
+      const sg = safetyFor(sc.siteId), k = (gridHalf(g) - sc.off.j) * g.n + (sc.off.i + gridHalf(g));
+      return { ...base, lat: p.lat, lon: p.lon, height_km: p.height_km,
+               slope_deg: sg && sg.grid ? sg.grid[k].slope80 : p.slope_deg,
                horizon: p.h100.map((v) => v / 100), azStep: g.az_step, nudged: true };
     }
-    return { ...base, slope_deg: base.pad_slope_deg, azStep: DATA.az_step };
+    const sf = safetyFor(sc.siteId);
+    return { ...base, slope_deg: sf ? sf.slope80.pad : base.pad_slope_deg, azStep: DATA.az_step };
   }
+
+  const gridHalf = (g) => (g.n - 1) / 2;
 
   function gridPoint(g, i, j) {
     const half = (g.n - 1) / 2;
@@ -148,6 +155,49 @@
       div.innerHTML = `<dt>${label}</dt><dd>${fmt(sm[k])}${delta}</dd>`;
       dl.appendChild(div);
     }
+    renderSafety(key);
+  }
+
+  // ---------- render: landing safety (NASA LOLA slope + permanent shadow) ----------
+  const fmtKm = (km) => (km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`);
+  const slopeCls = (v) => (v > 10 ? "bad" : v > 8 ? "warn" : "");
+
+  function renderSafety(key) {
+    const sc = S[key], box = $(".safety", sc.el), dl = $(".safe-stats", box), note = $(".safe-note", box);
+    const rec = sc.siteId === "custom" ? null : safetyFor(sc.siteId);
+    dl.innerHTML = "";
+    if (!rec) {
+      note.textContent = sc.siteId === "custom"
+        ? "Slope and permanent-shadow maps are evaluated for the listed polar sites only, not for custom points."
+        : "No NASA polar slope or shadow map here: those maps cover 80–90° S only.";
+      return;
+    }
+    const add = (label, html, cls) => {
+      const d = document.createElement("div");
+      d.innerHTML = `<dt>${label}</dt><dd class="${cls || ""}">${html}</dd>`;
+      dl.appendChild(d);
+    };
+    const pm = (v, e) => `${v.toFixed(1)}°<small> ±${Math.max(e, 0.1).toFixed(1)}°</small>`;
+    if (sc.site.nudged) {
+      const g = GRIDS[sc.siteId], c = rec.grid[(gridHalf(g) - sc.off.j) * g.n + (sc.off.i + gridHalf(g))];
+      add("Slope here (80 m map)", pm(c.slope80, c.slope80_err), slopeCls(c.slope80));
+      add("Permanent shadow", c.psr ? "Inside a PSR" : "Not in a PSR", c.psr ? "bad" : "");
+      note.textContent = "Moved pad: point values only. Area statistics are shown for the original pad. " +
+        "Neither map resolves rocks or holes under ~0.5 m.";
+      return;
+    }
+    const s5 = rec.slope5, s80 = rec.slope80, p = rec.psr;
+    if (s5) add("Slope at pad (5 m map)", pm(s5.pad, s5.pad_err), slopeCls(s5.pad));
+    else add("Slope at pad (80 m map)", pm(s80.pad, s80.pad_err), slopeCls(s80.pad));
+    if (s5) add(`95% of ${s5.radius_m} m circle under`, `${s5.p95.toFixed(1)}°`, slopeCls(s5.p95));
+    add(`Under 10° within ${s80.radius_m} m`,
+      `${Math.round(s80.lt10 * 100)}%<small> ${Math.round(s80.lt10_1sigma * 100)}% with +1σ</small>`,
+      s80.lt10 < 0.5 ? "bad" : s80.lt10 < 0.8 ? "warn" : "");
+    add(`95% of ${s80.radius_m} m circle under`, `${s80.p95.toFixed(1)}°`, slopeCls(s80.p95));
+    add("Nearest permanent shadow",
+      p.pad ? "Pad is inside" : p.nearest_km == null ? `&gt; ${p.search_km} km` : fmtKm(p.nearest_km), p.pad ? "bad" : "");
+    note.textContent = `NASA LOLA slope maps (80 m/px everywhere${s5 ? ", 5 m/px at this site" : ""}); ± is the map's 1σ uncertainty. ` +
+      "Neither resolution shows rocks or holes under ~0.5 m, so this screens a site, it does not clear it.";
   }
 
   // ---------- render: pad nudge grid ----------
@@ -177,9 +227,11 @@
     gridEl.style.gridTemplateColumns = `repeat(${g.n}, 1fr)`;
     gridEl.innerHTML = "";
     let best = null;
+    const sg = (safetyFor(sc.siteId) || {}).grid;
     g.points.forEach((p, k) => {
       const i = p.de / g.spacing_km, j = p.dn / g.spacing_km, v = sums[k][metric];
-      const steep = p.slope_deg > 10;
+      const slope = sg ? sg[k].slope80 : p.slope_deg, psr = !!(sg && sg[k].psr);
+      const steep = slope > 10 || psr;
       if (!steep && (!best || v > best.v)) best = { i, j, v };
       const b = document.createElement("button");
       b.type = "button";
@@ -187,16 +239,18 @@
       b.style.setProperty("--fill", color);
       b.style.setProperty("--a", (0.08 + 0.92 * v / 100).toFixed(2));
       b.textContent = Math.round(v);
-      b.title = `${offName(i, j)}: ${Math.round(v)}%, slope ${p.slope_deg.toFixed(1)}°${steep ? " (too steep to land)" : ""}`;
+      b.title = `${offName(i, j)}: ${Math.round(v)}%, slope ${slope.toFixed(1)}°` +
+        `${psr ? " (permanently shadowed, no landing)" : slope > 10 ? " (too steep to land)" : ""}`;
       b.setAttribute("aria-label", b.title);
       b.addEventListener("click", () => { sc.off = { i, j }; update(key); });
       gridEl.appendChild(b);
     });
     const cur = sums[(half - sc.off.j) * g.n + (sc.off.i + half)][metric];
     const label = metric === "sunPct" ? "sunlight" : metric === "earthPct" ? "Earth visibility" : "power and Earth link";
-    const pt = gridPoint(g, sc.off.i, sc.off.j);
+    const kc = (half - sc.off.j) * g.n + (sc.off.i + half);
+    const ptSlope = sg ? sg[kc].slope80 : gridPoint(g, sc.off.i, sc.off.j).slope_deg, ptPsr = !!(sg && sg[kc].psr);
     let msg = `Each square is a pad 1 km apart, coloured by ${label} over these 30 days. Here: ${Math.round(cur)}%` +
-      `${pt.slope_deg > 10 ? `, but the ground slopes ${pt.slope_deg.toFixed(0)}°, too steep to land` : ""}.`;
+      `${ptPsr ? ", but it lies in permanent shadow" : ptSlope > 10 ? `, but the ground slopes ${ptSlope.toFixed(0)}°, too steep to land` : ""}.`;
     if (best && best.v - cur >= 1) msg += best.i || best.j
       ? ` Best landable spot nearby: ${offName(best.i, best.j)} with ${Math.round(best.v)}%.`
       : ` The original pad is the best landable spot here (${Math.round(best.v)}%).`;
@@ -553,6 +607,7 @@
 
   async function init() {
     DATA = await (await fetch("data/sites.json")).json();
+    SAFETY = await fetch("data/safety.json").then((r) => (r.ok ? r.json() : null)).catch(() => null);
     const a = siteById("connecting-ridge") || DATA.sites[0], b = siteById("malapert-massif") || DATA.sites[1];
     const start = new Date(Date.UTC(2026, 11, 1));
     S.A = { siteId: a.id, lat: a.lat, lon: a.lon, landing: new Date(start), off: { i: 0, j: 0 }, customHz: null };

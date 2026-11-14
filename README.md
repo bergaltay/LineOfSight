@@ -33,6 +33,7 @@ Every value and control is explained in the [interface guide](docs/UI_GUIDE.md).
 | `pipeline/horizon.py` | 360 deg terrain skyline per site (0.5 deg steps, out to 450 km, lunar curvature included, no refraction) | LOLA `LDEM_80S_80M` + `LDEM_75S_240M` |
 | `pipeline/build_data.py` | Writes `web/data/sites.json` (sites + horizons) and `web/data/grid/*.json` (5 x 5 pad grids) | `pipeline/sites.py` |
 | `pipeline/build_dem.py` | Writes `web/data/dem_south_480m.bin`, a 480 m terrain grid (300 km around the pole) for the map and custom points | LOLA `LDEM_75S_240M` |
+| `pipeline/build_safety.py` | Writes `web/data/safety.json`: slope at each pad (80 m everywhere, 5 m at six sites, with 1σ), slope statistics over 500 m / 100 m circles, permanent-shadow check and nearest PSR, per-cell slope and PSR for the pad grid. `pipeline/pgda.py` fetches only the TIFF tiles around each pad (HTTP range requests) and caches them in `data/raw/pgda_cache/` | NASA GSFC PGDA: `LDSM_80S_80MPP_ADJ` (+`_ERR`), `LPSR_80S_20MPP_ADJ`, 5 m site DEMs `Site01/04/07/11/20/23` (`slp`, `slperr`) |
 | `web/` | Static web app; ephemeris (`web/js/ephem.js`, same math as Python) and custom-point skylines (`web/js/terrain.js`) run in the browser | — |
 
 **Validation**
@@ -80,10 +81,11 @@ while Earth-facing Malapert and Leibnitz Beta keep radio contact > 80% of the ti
    ```bash
    python3 -m venv venv
    source venv/bin/activate
-   pip install astronomy-engine numpy scipy
+   pip install astronomy-engine numpy scipy tifffile imagecodecs
    python pipeline/validate_horizons.py
    python pipeline/build_data.py
    python pipeline/build_dem.py
+   python pipeline/build_safety.py   # needs network on first run (NASA PGDA)
    ```
 
 3. Serve the web app and open http://localhost:8000
@@ -99,6 +101,7 @@ The live version is served from GitHub Pages; the root `index.html` redirects to
 
 - NASA LRO Lunar Orbiter Laser Altimeter (LOLA) gridded data records, PDS Geosciences Node.
 - NASA/JPL Horizons System (validation reference).
+- NASA GSFC PGDA LOLA south-pole slope, slope-uncertainty and permanent-shadow maps (Barker et al. 2023, PSJ 4, 183, doi:10.3847/PSJ/acf3e1; data doi:10.60903/gsfcpgda-lola-spole) and 5 m/px landing-site DEMs (Barker et al. 2021, PSS 203, 105119, doi:10.1016/j.pss.2020.105119).
 - Site centres: NASA LOLA study regions, Lunar Surface Data Book (2025).
 - Landing coordinates: NASA NSSDC, LROC (Arizona State University), JAXA, ISRO and mission releases.
 - astronomy-engine by Don Cross, MIT License.
