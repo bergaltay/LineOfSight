@@ -3,8 +3,24 @@
 NASA Space Apps Challenge 2026, challenge *Lunar Landing Site Navigator*. Team from Ankara.
 
 Compare two lunar landing plans (site + date) at a glance: when the Sun is above the real
-terrain horizon (solar power) and when Earth is (direct-to-Earth radio), with countdowns to
-the next sunset / Earthset and a 30-day timeline after landing.
+terrain horizon (solar power) and when Earth is (direct-to-Earth radio).
+
+**Features**
+
+- Plan A vs Plan B side by side, with differences highlighted (B compared with A)
+- 17 curated sites: Artemis III / LOLA study regions, CLPS landings (IM-1, IM-2, Blue Ghost 1),
+  Chandrayaan-3, SLIM, Chang'e 4 and 6 (far side), Apollo 11 and 14, plus custom coordinates
+- Landing date and hour, with one-click shifts of ±1 day and ±1 lunar month
+- Countdown to the next sunset / sunrise and Earthset / Earthrise; Sun and Earth elevation and
+  clearance above the skyline
+- 360° horizon panorama with the Sun's and Earth's 30-day paths over real LOLA terrain
+- 30-day hour-by-hour timeline (power and link / power only / link only / neither), animated
+- **Move the pad:** 5 x 5 grid of pads 1 km apart around each polar site, coloured by sunlight,
+  Earth visibility or both, with slopes over 10° flagged as too steep to land
+- **Across the year:** monthly sunlight and Earth visibility, showing polar seasons
+- **South pole map:** shaded LOLA relief; click anywhere to land there (skyline computed in the
+  browser), with arrows to the Sun and Earth
+- CSV export of the 30-day table; shareable links (state in the URL)
 
 ## How it works
 
@@ -13,11 +29,19 @@ the next sunset / Earthset and a 30-day timeline after landing.
 | `pipeline/ephem.py` | Topocentric Sun/Earth azimuth & elevation from any lunar surface point | astronomy-engine (VSOP87, ELP, IAU lunar orientation with libration) |
 | `pipeline/validate_horizons.py` | Compares the above with NASA/JPL Horizons | Horizons API samples, 3 sites x 1 year |
 | `pipeline/horizon.py` | 360 deg terrain skyline per site (0.5 deg steps, out to 450 km, lunar curvature included, no refraction) | LOLA `LDEM_80S_80M` + `LDEM_75S_240M` |
-| `pipeline/build_data.py` | Writes `web/data/sites.json` (site metadata + horizon profiles) | `pipeline/sites.py` |
-| `web/` | Static web app; ephemeris runs live in the browser (`web/js/ephem.js`, same math as Python) | — |
+| `pipeline/build_data.py` | Writes `web/data/sites.json` (sites + horizons) and `web/data/grid/*.json` (5 x 5 pad grids) | `pipeline/sites.py` |
+| `pipeline/build_dem.py` | Writes `web/data/dem_south_480m.bin`, a 480 m terrain grid (300 km around the pole) for the map and custom points | LOLA `LDEM_75S_240M` |
+| `web/` | Static web app; ephemeris (`web/js/ephem.js`, same math as Python) and custom-point skylines (`web/js/terrain.js`) run in the browser | — |
 
-**Validation:** against Horizons, the largest difference is 0.003 deg in azimuth or elevation
-(the Sun's disc is ~0.53 deg wide).
+**Validation**
+
+- Ephemeris vs JPL Horizons: largest difference 0.003 deg in azimuth or elevation
+  (the Sun's disc is ~0.53 deg wide).
+- Terrain georeferencing: at the IM-1 Odysseus touchdown point our DEM gives +2594 m and a
+  10.9 deg slope; LROC reports 2579 m and the landing team reports a ~12 deg slope.
+- Annual sunlight at Connecting Ridge (88%) is in the range published by polar illumination studies.
+- Browser skylines for custom points (480 m terrain) are within 0.6 deg rms of the 80 m pipeline
+  at the curated sites.
 
 **Landing pads:** NASA publishes region centres, not pads, and some centres sit on crater walls
 (Shackleton Rim's centre is on a ~31 deg slope). For each region we place the pad on the highest
@@ -57,6 +81,7 @@ while Earth-facing Malapert and Leibnitz Beta keep radio contact > 80% of the ti
    pip install astronomy-engine numpy scipy
    python pipeline/validate_horizons.py
    python pipeline/build_data.py
+   python pipeline/build_dem.py
    ```
 
 3. Serve the web app and open http://localhost:8000
@@ -73,6 +98,7 @@ The live version is served from GitHub Pages; the root `index.html` redirects to
 - NASA LRO Lunar Orbiter Laser Altimeter (LOLA) gridded data records, PDS Geosciences Node.
 - NASA/JPL Horizons System (validation reference).
 - Site centres: NASA LOLA study regions, Lunar Surface Data Book (2025).
+- Landing coordinates: NASA NSSDC, LROC (Arizona State University), JAXA, ISRO and mission releases.
 - astronomy-engine by Don Cross, MIT License.
 
 Visibility means a clear geometric line of sight to the body's disc; it is not a power or

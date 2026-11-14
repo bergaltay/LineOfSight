@@ -86,6 +86,47 @@ main { padding: 0 clamp(1rem, 4vw, 3rem) 3rem; display: grid; gap: 2.5rem; }
 .stats dd .delta { font-size: .85rem; margin-left: .3rem; font-weight: 500; }
 .delta.up { color: #8fd6a8; } .delta.down { color: #f08a7a; }
 
+.when { display: flex; gap: .6rem; }
+.when .hour { width: 6.5rem; }
+.body .figs { display: flex; gap: 1.1rem; margin: .45rem 0 .1rem; }
+.body .figs small { margin: 0; font-size: .75rem; }
+.body .figs strong { display: block; font: 600 1.15rem/1.15 var(--num); font-variant-numeric: tabular-nums; color: var(--regolith); }
+.body.sun .figs span:first-child strong { color: var(--sun); }
+.body.off .figs strong { color: var(--dust); }
+
+/* pad nudge grid */
+.nudge { margin-top: 1.1rem; border-top: 1px solid var(--rim); padding-top: .9rem; }
+.nudge[hidden] { display: none; }
+.nudge-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .5rem 1rem; }
+.nudge h3 { margin: 0; font-size: 1rem; font-weight: 600; color: #fff; }
+.metric { display: flex; gap: .9rem; font-size: .85rem; color: var(--dust); }
+.metric input { accent-color: var(--sun); margin: 0 .25rem 0 0; vertical-align: -1px; }
+.nudge-body { display: grid; grid-template-columns: minmax(150px, 190px) 1fr; gap: 1rem; align-items: start; margin-top: .6rem; }
+.grid { display: grid; gap: 3px; aspect-ratio: 1; }
+.cell {
+  position: relative; min-height: 0; padding: 0; border: 0; border-radius: 4px;
+  font: 600 .8rem/1 var(--num); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6);
+  background: color-mix(in srgb, var(--fill) calc(var(--a) * 100%), var(--dark));
+}
+.cell.pad::after { content: ""; position: absolute; inset: 3px; border: 1px dashed rgba(255,255,255,.5); border-radius: 3px; }
+.cell.steep { background-image: repeating-linear-gradient(45deg, rgba(16,21,30,.55) 0 2px, transparent 2px 8px); color: rgba(255,255,255,.8); }
+.cell.on { outline: 2px solid #fff; outline-offset: 1px; z-index: 1; }
+.nudge-text { margin: 0; font-size: .9rem; color: var(--regolith); }
+.actions { margin-top: 1rem; display: flex; justify-content: flex-end; }
+.actions .csv { font-size: .85rem; color: var(--dust); }
+
+/* year */
+.yearplot { display: grid; grid-template-columns: 2rem 1fr; align-items: center; margin-bottom: .75rem; }
+.yearplot canvas { width: 100%; height: 120px; }
+
+/* map */
+.mapsec { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); gap: 1.5rem; align-items: start; }
+.map { width: 100%; aspect-ratio: 1; max-height: 720px; border-radius: var(--radius); cursor: crosshair; background: var(--dark); }
+.place { display: grid; gap: .4rem; margin: .75rem 0; }
+.place input { accent-color: var(--sun); margin-right: .35rem; }
+.map-status { color: var(--dust); font-size: .9rem; min-height: 1.4em; }
+@media (max-width: 800px) { .mapsec { grid-template-columns: 1fr; } }
+
 /* ---------- panoramas ---------- */
 .sky .hint, .time .hint { color: var(--dust); margin: .35rem 0 1rem; max-width: 75ch; font-size: .95rem; }
 .pano { margin: 0 0 1rem; }
@@ -109,6 +150,8 @@ main { padding: 0 clamp(1rem, 4vw, 3rem) 3rem; display: grid; gap: 2.5rem; }
 
 @media (max-width: 560px) {
   .now, .stats { grid-template-columns: 1fr 1fr; }
+  .pickers { grid-template-columns: 1fr; }
+  .nudge-body { grid-template-columns: 1fr; }
   .pano canvas { height: 180px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

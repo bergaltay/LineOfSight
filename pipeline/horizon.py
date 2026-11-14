@@ -154,6 +154,15 @@ def find_pad(lat, lon, dem, radius_km=1.5, max_slope_deg=8.0):
     return float(plat), float(plon), float(win[j, i]), float(slope[j, i]), float(dist[j, i])
 
 
+def slope_at(lat, lon, dem):
+    """Local terrain slope (deg) from a 3x3 pixel neighbourhood."""
+    line, sample, _ = dem.latlon_to_px(np.array(lat), np.array(lon))
+    l0, s0 = int(round(float(line))), int(round(float(sample)))
+    win = dem.z[l0 - 1:l0 + 2, s0 - 1:s0 + 2].astype(float)
+    gy, gx = np.gradient(win, dem.scale_km)
+    return float(np.degrees(np.arctan(np.hypot(gx[1, 1], gy[1, 1]))))
+
+
 def smooth_sphere_horizon(obs_height_m=2.0):
     """Geometric horizon dip for a bare sphere (used where no polar DEM exists)."""
     r = R_MOON_KM
