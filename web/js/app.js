@@ -973,7 +973,11 @@
 
   init().catch((err) => {
     console.error(err);
+    const why = location.protocol === "file:"
+      ? "Browsers do not let a page opened from disk load its data files."
+      : `Could not load the site data (${err.message}).`;
     document.querySelector("main").insertAdjacentHTML("afterbegin",
-      `<p class="note warn">Could not load site data (${err.message}). Serve the web folder over HTTP, for example: python3 -m http.server</p>`);
+      `<p class="note warn">${why} Start the app with <code>./start.sh</code> (macOS, Linux) or <code>start.bat</code> (Windows) ` +
+      `in the project folder, or run <code>python3 -m http.server 8000</code> there and open http://localhost:8000/web/</p>`);
   });
 })();

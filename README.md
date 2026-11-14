@@ -5,6 +5,26 @@ NASA Space Apps Challenge 2026, challenge *Lunar Landing Site Navigator*. Team f
 Compare two lunar landing plans (site + date) at a glance: when the Sun is above the real
 terrain horizon (solar power) and when Earth is (direct-to-Earth radio).
 
+## Quick start (no install, no build)
+
+Everything the app needs is already in this repository (`web/data/`, about 4.5 MB), so it runs
+offline from a fresh clone. You need a web browser and Python 3.
+
+| System | Run |
+|---|---|
+| macOS / Linux | `./start.sh` |
+| Windows | double-click `start.bat` |
+| Any | `python3 -m http.server 8000` in this folder, then open <http://localhost:8000/web/> |
+
+The script starts a local web server and opens <http://localhost:8000/web/>. Opening
+`web/index.html` straight from disk does not work: browsers do not let a `file://` page load its
+data files. Any other static web server works as well. Tested in Chrome.
+
+**Try this:** the page opens with plan A at Connecting Ridge and plan B at Malapert Massif.
+Read the verdict in step 2 (Connecting Ridge has sunlight nearly all month, Malapert keeps Earth
+in view far longer), then click the numbered circle near the pole on the map, switch plan B to
+Shackleton Rim, and press **Play** in step 3.
+
 **Features**
 
 The page follows the decision: **1** pick a site and date for each plan, **2** see which plan is
@@ -75,11 +95,15 @@ compute the skyline for an observer 2 m above that pad.
 The trade-off is the story: the best-lit ridges near Shackleton see Earth only half the time,
 while Earth-facing Malapert and Leibnitz Beta keep radio contact > 80% of the time but get less sun.
 
-## Run it
+## Rebuild the data (optional)
+
+Only needed to change the sites or regenerate `web/data/` from the original NASA data; the app
+itself does not need this.
 
 1. Download the LOLA DEMs from the
    [PDS Geosciences Node](https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/polar/float_img/)
    into `data/raw/`: `ldem_80s_80m_float.img` (231 MB) and `ldem_75s_240m_float.img` (58 MB).
+   These are not in the repository (`data/raw/` is ignored by git).
 
 2. Run the Python pipeline. `validate_horizons.py` compares the ephemeris with JPL Horizons;
    `build_data.py` writes the horizon profiles to `web/data/sites.json`.
@@ -87,7 +111,7 @@ while Earth-facing Malapert and Leibnitz Beta keep radio contact > 80% of the ti
    ```bash
    python3 -m venv venv
    source venv/bin/activate
-   pip install astronomy-engine numpy scipy tifffile imagecodecs
+   pip install astronomy-engine numpy scipy tifffile imagecodecs pillow
    python pipeline/validate_horizons.py
    python pipeline/build_data.py
    python pipeline/build_dem.py
@@ -95,14 +119,7 @@ while Earth-facing Malapert and Leibnitz Beta keep radio contact > 80% of the ti
    python pipeline/build_safety.py   # needs network on first run (NASA PGDA)
    ```
 
-3. Serve the web app and open http://localhost:8000
-
-   ```bash
-   cd web
-   python3 -m http.server 8000
-   ```
-
-The live version is served from GitHub Pages; the root `index.html` redirects to `web/`.
+3. Start the app as in [Quick start](#quick-start-no-install-no-build).
 
 ## Data and credits
 
